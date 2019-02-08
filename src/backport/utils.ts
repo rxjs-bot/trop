@@ -158,13 +158,19 @@ export const backportImpl = async (robot: Application,
 
       // Set up remotes
       log('setting up remotes');
+      let targetRepoRemote = `https://github.com/${slug}.git`;
+      // This adds support for the target_repo being private as long as the fork user has read access
+      if (process.env.GITHUB_FORK_USER_CLONE_LOGIN) {
+        targetRepoRemote =
+          `https://${process.env.GITHUB_FORK_USER_CLONE_LOGIN}:${process.env.GITHUB_FORK_USER_TOKEN}@github.com/${slug}.git`;
+      }
       await runCommand({
         what: commands.SET_UP_REMOTES,
         payload: {
           dir,
           remotes: [{
             name: 'target_repo',
-            value: `https://github.com/${slug}.git`,
+            value: targetRepoRemote,
           }, {
             name: 'fork',
             // tslint:disable-next-line
